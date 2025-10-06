@@ -1,0 +1,108 @@
+/* Fonts */
+:root {
+  --default-font: "Open Sans", sans-serif;
+  --heading-font: "Jost", sans-serif;
+  --nav-font: "Poppins", sans-serif;
+
+  /* Colors (Color Hunt Palette) */
+  --background-color: #ffffff;   /* putih untuk main background */
+  --default-color: #444444;      /* teks abu */
+  --heading-color: #7d0a0a;      /* sidebar merah tua */
+  --accent-color: #bf3131;       /* garis accent merah terang */
+  --surface-color: #ead196;      /* menu aktif = krem */
+  --contrast-color: #ffffff;     /* teks putih */
+
+  --sidebar-width: 240px;
+}
+
+/* Reset */
+body {
+  margin: 0;
+  font-family: var(--default-font);
+  background: var(--background-color);
+  color: var(--default-color);
+}
+
+/* Sidebar */
+#sidebar {
+  width: var(--sidebar-width);
+  min-height: 100vh;
+  background-color: var(--heading-color);
+  transition: all 0.3s;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1030;
+}
+
+#sidebar .sidebar-header {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+}
+
+#sidebar .sidebar-header img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+#sidebar .sidebar-header h5 {
+  font-family: var(--heading-font);
+  font-size: 18px;
+  color: var(--contrast-color);
+  margin: 0;
+}
+
+#sidebar .nav-link {
+  font-family: var(--nav-font);
+  font-size: 15px;
+  color: var(--contrast-color);
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin: 6px 8px;
+  display: flex;
+  align-items: center;
+}
+
+#sidebar .nav-link i {
+  font-size: 18px;
+  margin-right: 8px;
+}
+
+#sidebar .nav-link:hover,
+#sidebar .nav-link.active {
+  background-color: var(--surface-color);
+  color: var(--heading-color);
+  font-weight: 600;
+}
+
+#sidebar.active {
+  margin-left: -240px;
+}
+
+/* Page Content */
+#page-content {
+  margin-left: var(--sidebar-width);
+  transition: all 0.3s;
+}
+
+#sidebar.active ~ #page-content {
+  margin-left: 0;
+}
+
+/* Navbar */
+.navbar {
+  font-family: var(--nav-font);
+  background: #ffffff;
+  border-bottom: 2px solid var(--accent-color);
+}
+
+.navbar .nav-link {
+  color: var(--default-color);
+}
+
+.navbar .nav-link:hover {
+  color: var(--accent-color);
+}
