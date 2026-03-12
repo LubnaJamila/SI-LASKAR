@@ -83,6 +83,11 @@ $(document).ready(function () {
             search: "",
             searchPlaceholder: "Cari...",
             info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
+
+            emptyTable: "Belum ada data tersedia",
+            zeroRecords: "Data tidak ditemukan",
+            infoEmpty: "Menampilkan 0 sampai 0 dari 0 entri",
+
             paginate: {
                 previous: "Sebelumnya",
                 next: "Selanjutnya",

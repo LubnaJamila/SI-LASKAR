@@ -12,34 +12,49 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
-        'name',
+        'nama_lengkap',
+        'nik',
+        'jenis_kelamin',
+        'no_telp',
+        'alamat',
         'email',
         'password',
-    ];
+        'role',
+        'status'
+        ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
-        'remember_token',
+        'remember_token'
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-    ];
+    public function ketuaTeams()
+    {
+        return $this->hasMany(Team::class,'ketua_id');
+    }
+    public function teams()
+    {
+        return $this->belongsToMany(Team::class,'team_members');
+    }
+    public function assignedRencana()
+    {
+        return $this->hasMany(RencanaKunjungan::class,'assigned_to');
+    }
+    public function createdRencana()
+    {
+        return $this->hasMany(RencanaKunjungan::class,'assigned_by');
+    }
+    public function createdHotspots()
+    {
+        return $this->hasMany(Hotspot::class,'created_by');
+    }
+    public function createdKunjungan()
+    {
+        return $this->hasMany(Kunjungan::class,'created_by');
+    }
+    public function isPartOfAnyTeam()
+    {
+        return $this->ketuaTeams()->exists() || $this->teams()->exists();
+    }
 }

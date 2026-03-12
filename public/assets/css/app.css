@@ -1250,3 +1250,207 @@ body {
         padding: 15px;
     }
 }
+/* ====== MODAL FIX - GANTI YANG LAMA DENGAN INI ====== */
+
+/* Modal backdrop - lebih tinggi dari navbar */
+.modal-backdrop {
+    z-index: 2000 !important;
+    background-color: rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Modal dialog - paling tinggi */
+.modal {
+    z-index: 2050 !important;
+}
+
+/* Pastikan modal content terlihat */
+.modal-dialog {
+    z-index: 2055 !important;
+    position: relative;
+    margin: 1.75rem auto;
+}
+
+/* Modal content styling */
+.modal-content {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    position: relative;
+    z-index: 2060 !important;
+}
+
+/* Modal header */
+.modal-header {
+    background: linear-gradient(90deg, var(--heading-color), var(--accent-color));
+    color: white;
+    border-radius: 16px 16px 0 0;
+    border-bottom: none;
+    padding: 1.25rem 1.5rem;
+}
+
+.modal-header .modal-title {
+    font-family: var(--heading-font);
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+.modal-header .btn-close {
+    filter: brightness(0) invert(1);
+    opacity: 0.8;
+}
+
+.modal-header .btn-close:hover {
+    opacity: 1;
+}
+
+/* Modal body */
+.modal-body {
+    padding: 1.5rem;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
+/* Form labels in modal */
+.modal-body label {
+    font-weight: 600;
+    color: var(--heading-color);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+/* Form controls in modal */
+.modal-body .form-control,
+.modal-body .form-select {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.modal-body .form-control:focus,
+.modal-body .form-select:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.2rem rgba(191, 49, 49, 0.15);
+    outline: none;
+}
+
+/* Textarea */
+.modal-body textarea.form-control {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Modal footer */
+.modal-footer {
+    border-top: 1px solid #dee2e6;
+    padding: 1rem 1.5rem;
+    border-radius: 0 0 16px 16px;
+}
+
+/* Tombol dalam modal */
+.modal-footer .btn {
+    border-radius: 8px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.modal-footer .btn-secondary {
+    background-color: #6c757d;
+    border: none;
+}
+
+.modal-footer .btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.modal-footer .btn-primary {
+    background: linear-gradient(90deg, var(--heading-color), var(--accent-color));
+    border: none;
+}
+
+.modal-footer .btn-primary:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+/* Pastikan body tidak scroll saat modal terbuka */
+body.modal-open {
+    overflow: hidden;
+    padding-right: 0 !important;
+}
+
+/* Fix untuk navbar agar tidak naik saat modal buka */
+.navbar {
+    z-index: 1100 !important;
+}
+
+/* Sidebar tetap di bawah modal */
+#sidebar {
+    z-index: 1000 !important;
+}
+
+/* Responsive modal di mobile */
+@media (max-width: 991.98px) {
+    .modal-dialog {
+        margin: 1rem;
+        max-width: calc(100% - 2rem);
+    }
+}
+
+@media (max-width: 575.98px) {
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem);
+    }
+    
+    .modal-header {
+        padding: 1rem;
+    }
+    
+    .modal-header .modal-title {
+        font-size: 1.1rem;
+    }
+    
+    .modal-body {
+        padding: 1rem;
+        max-height: calc(100vh - 150px);
+    }
+    
+    .modal-footer {
+        padding: 0.75rem 1rem;
+    }
+    
+    .modal-footer .btn {
+        padding: 0.4rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+.select2-container {
+    width: 100% !important;
+}
+
+.select2-container--default .select2-selection--single,
+.select2-container--default .select2-selection--multiple {
+    border: 1px solid #d0d0d0;
+    border-radius: 6px;
+    min-height: 42px;
+    padding: 5px 10px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 30px;
+    padding-left: 5px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 40px;
+}
+
+.select2-container--default.select2-container--focus .select2-selection--single,
+.select2-container--default.select2-container--focus .select2-selection--multiple {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0,123,255,.1);
+}

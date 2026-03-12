@@ -10,11 +10,43 @@
         <div class="d-flex justify-content-start align-items-center mb-3 gap-3 flex-wrap">
 
             {{-- Tombol Tambah Hotspot --}}
-            <a href="{{ route ('tambah_team') }}" class="btn-tambah-hotspot text-decoration-none">
+            <a href="{{ route('tambah_team') }}" class="btn-tambah-hotspot text-decoration-none">
                 Tambah Team
                 <i class="bi bi-plus-circle"></i>
             </a>
         </div>
+
+        {{-- Alert Success --}}
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        {{-- Alert Error --}}
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        {{-- Validation Errors --}}
+        @if ($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong>Terjadi kesalahan:</strong>
+                <ul class="mb-0 mt-2">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
 
         {{-- Tabel Hotspot --}}
         <div class="card shadow-sm border-0 rounded-2">
@@ -27,48 +59,45 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Nama Hotspot</th>
-                                <th>Jenis Hotspot</th>
-                                <th>Jenis Populasi</th>
-                                <th>Koordinat</th>
+                                <th>Nama Team</th>
+                                <th>Ketua</th>
+                                <th>Jumlah Member</th>
+                                <th>Status</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
+
                         <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>Hotspot Mawar</td>
-                                <td>Tempat Rekreasi</td>
-                                <td>WPS</td>
-                                <td>-6.175392, 106.827153</td>
-                                <td>
-                                    <a href="#" class="btn btn-sm btn-warning me-1"><i class="bi bi-pencil"></i></a>
-                                    <a href="#" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>Hotspot Melati</td>
-                                <td>Rumah Bordir</td>
-                                <td>LSL</td>
-                                <td>-6.175392, 106.827153</td>
-                                <td>
-                                    <a href="#" class="btn btn-sm btn-warning me-1"><i class="bi bi-pencil"></i></a>
-                                    <a href="#" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td>Hotspot Kenanga</td>
-                                <td>WPS</td>
-                                <td>Jl. Kenanga No. 3</td>
-                                <td>-6.175392, 106.827153</td>
-                                <td>
-                                    <a href="#" class="btn btn-sm btn-warning me-1"><i class="bi bi-pencil"></i></a>
-                                    <a href="#" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></a>
-                                </td>
-                            </tr>
+                            @foreach($teams as $team)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+
+                                    <td>{{ $team->nama_team }}</td>
+
+                                    <td>
+                                        {{ $team->ketua->nama_lengkap ?? '-' }}
+                                    </td>
+
+                                    <td>
+                                        {{ $team->members->count() }} Orang
+                                    </td>
+
+                                    <td>
+                                        <span class="badge {{ $team->status == 'Aktif' ? 'bg-secondary' : 'bg-success' }}">
+                                            {{ $team->status }}
+                                        </span>
+                                    </td>
+
+
+                                    <td>
+                                        <a href="{{ route('team.edit', $team->id) }}" class="btn btn-sm btn-warning">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
                         </tbody>
+
                     </table>
                 </div>
 

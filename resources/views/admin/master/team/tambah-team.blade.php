@@ -4,8 +4,6 @@
 
 @section('content')
     <style>
-        
-
         .container {
             max-width: 1200px;
             margin-bottom: 20px;
@@ -35,8 +33,8 @@
         }
 
         /* .card-body {
-                        padding: 25px;
-                    } */
+                                                                                    padding: 25px;
+                                                                                } */
 
         .section-title {
             font-size: 1rem;
@@ -252,7 +250,8 @@
             }
         }
     </style>
-    <form>
+    <form action="{{ route('tambah_team.store') }}" method="POST">
+        @csrf
 
         <!-- DATA TEAM -->
         <h6 class="section-title">Data Team</h6>
@@ -260,24 +259,12 @@
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label class="form-label">Nama Team</label>
-                    <input type="text" class="form-control" placeholder="Nama Team">
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label">Username Team</label>
-                    <input type="text" class="form-control" placeholder="Username Team">
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-control" placeholder="Password">
+                    <input type="text" name="nama_team" class="form-control" placeholder="Nama Team">
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label">Status Team</label>
-                    <select class="form-control">
+                    <select name="status" class="form-control">
                         <option value="">Pilih Status</option>
                         <option>Aktif</option>
                         <option>Non Aktif</option>
@@ -292,40 +279,38 @@
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label class="form-label">Ketua Team</label>
-                    <select class="form-control select2-single">
-                        <option value=""></option>
-                        <option>Lubna</option>
-                        <option>Alfan</option>
-                        <option>Salsa</option>
+                    <select name="ketua_id" id="ketuaSelect" class="form-control select2-single">
+                        <option value="">Pilih Ketua</option>
+                        @foreach ($users as $user)
+                            <option value="{{ $user->id }}">{{ $user->nama_lengkap }}</option>
+                        @endforeach
                     </select>
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label">NIK</label>
-                    <input type="text" class="form-control" placeholder="NIK">
+                    <input type="text" id="nikField" class="form-control" placeholder="NIK Ketua" disabled>
                 </div>
             </div>
 
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label class="form-label">No Telepon</label>
-                    <input type="text" class="form-control" placeholder="No Telepon">
+                    <input type="text" id="telpField" class="form-control" placeholder="No Telepon Ketua" disabled>
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">Status Petugas</label>
-                    <input type="text" class="form-control" placeholder="Status Petugas">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="emailField" class="form-control" placeholder="Email Ketua" disabled>
                 </div>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Pilih Anggota Team</label>
-                <select class="form-control select2-multiple" multiple>
-                    <option selected>Lubna</option>
-                    <option selected>Alfan</option>
-                    <option selected>Salsa</option>
-                    <option>Rizky</option>
-                    <option>Dewi</option>
+                <select name="members[]" id="memberSelect" class="form-control select2-multiple" multiple>
+                    @foreach ($users as $user)
+                        <option value="{{ $user->id }}">{{ $user->nama_lengkap }}</option>
+                    @endforeach
                 </select>
                 <small class="text-muted">
                     Bisa pilih lebih dari satu anggota dan hapus dengan klik ❌
@@ -335,9 +320,49 @@
         </div>
 
         <div class="text-end">
-            <button type="button" class="btn btn-success">
+            <button type="submit" class="btn btn-success">
                 Simpan Data Team
             </button>
         </div>
     </form>
 @endsection
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+
+            $('.select2-single').select2();
+            $('.select2-multiple').select2();
+
+            const ketua = $('#ketuaSelect');
+            const member = $('#memberSelect');
+
+            ketua.on('change', function() {
+
+                let id = $(this).val();
+
+                if (!id) {
+                    $('#nikField,#telpField,#emailField').val('');
+                    return;
+                }
+
+                // AJAX (pakai url laravel biar aman)
+                $.get("{{ url('/users') }}/" + id + "/detail", function(res) {
+                    $('#nikField').val(res.nik);
+                    $('#telpField').val(res.no_telp);
+                    $('#emailField').val(res.email);
+                });
+
+                // disable ketua di member
+                member.find('option').prop('disabled', false);
+
+                member.find('option[value="' + id + '"]')
+                    .prop('selected', false)
+                    .prop('disabled', true);
+
+                // refresh select2
+                member.val(null).trigger('change.select2');
+            });
+
+        });
+    </script>
+@endpush

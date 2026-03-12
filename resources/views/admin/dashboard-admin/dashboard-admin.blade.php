@@ -2,659 +2,462 @@
 
 @section('title', 'Dashboard')
 
-
-
 @section('content')
+<style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    .dash-wrap {
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        color: #1a1a2e;
+    }
 
-        .dashboard-container {
-            max-width: 100%;
-            padding: 0px;
-        }
+    /* ── Summary Cards ── */
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+    @media (max-width: 900px) { .summary-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 480px) { .summary-grid { grid-template-columns: 1fr; } }
 
-        .map-section {
-            margin-bottom: 50px;
-            position: relative;
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
+    .s-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 20px 22px;
+        box-shadow: 0 2px 12px rgba(0,0,0,.07);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border-left: 4px solid var(--accent);
+        transition: transform .2s, box-shadow .2s;
+    }
+    .s-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.12); }
+    .s-card:nth-child(1) { --accent: #bf3131; }
+    .s-card:nth-child(2) { --accent: #1565C0; }
+    .s-card:nth-child(3) { --accent: #2E7D32; }
+    .s-card:nth-child(4) { --accent: #E65100; }
 
-        .map-section h2,
-        .chart-section h2 {
-            font-size: 16px;
-            color: #444444;
-            margin-bottom: 20px;
-            font-weight: 600;
-            padding-left: 10px;
-            border-left: 4px solid #bf3131;
-        }
+    .s-icon {
+        width: 46px; height: 46px;
+        border-radius: 10px;
+        background: var(--accent);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px; color: #fff; flex-shrink: 0;
+    }
+    .s-info .s-val { font-size: 24px; font-weight: 700; color: #1a1a2e; line-height: 1; }
+    .s-info .s-lbl { font-size: 12px; color: #777; margin-top: 4px; }
 
-        #map {
-            width: 100%;
-            height: 500px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
+    /* ── Panel ── */
+    .panel {
+        background: #fff;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 12px rgba(0,0,0,.07);
+        margin-bottom: 28px;
+        position: relative;
+    }
+    .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .panel-title {
+        font-size: 15px; font-weight: 700; color: #1a1a2e;
+        padding-left: 12px;
+        border-left: 4px solid #bf3131;
+    }
 
-        .legend {
-            position: absolute;
-            bottom: 50px;
-            right: 50px;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            min-width: 180px;
-        }
+    /* ── Periode select ── */
+    .periode-select {
+        display: flex; align-items: center; gap: 8px;
+        font-size: 13px; color: #555;
+    }
+    .periode-select select {
+        padding: 5px 10px; border-radius: 8px;
+        border: 1.5px solid #ddd; font-size: 13px;
+        background: #fff; cursor: pointer;
+        outline: none;
+    }
+    .periode-select select:focus { border-color: #bf3131; }
 
-        .legend-title {
-            font-weight: 600;
-            margin-bottom: 10px;
-            font-size: 14px;
-            color: #333;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 8px;
-        }
+    /* ── Map ── */
+    #map {
+        width: 100%; height: 520px;
+        border-radius: 10px;
+        border: 1.5px solid #e0e0e0;
+    }
 
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin: 8px 0;
-            font-size: 13px;
-        }
+    .map-legend {
+        position: absolute;
+        bottom: 36px; right: 36px;
+        background: #fff;
+        border-radius: 10px;
+        padding: 14px 18px;
+        box-shadow: 0 4px 16px rgba(0,0,0,.15);
+        z-index: 1000;
+        min-width: 185px;
+    }
+    .leg-title {
+        font-size: 13px; font-weight: 700; color: #333;
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 8px; margin-bottom: 10px;
+    }
+    .leg-item {
+        display: flex; align-items: center;
+        gap: 10px; margin-bottom: 8px;
+        font-size: 13px; color: #444;
+    }
+    .leg-dot { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
 
-        .legend-color {
-            width: 24px;
-            height: 24px;
-            margin-right: 10px;
-            border-radius: 4px;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-        }
+    /* ── Cluster filter buttons ── */
+    .cluster-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+    .cf-btn {
+        padding: 5px 14px; border-radius: 20px;
+        border: 2px solid transparent; cursor: pointer;
+        font-size: 12px; font-weight: 600;
+        background: #f0f0f0; color: #555;
+        transition: all .15s;
+    }
+    .cf-btn[data-label="Semua"].active         { background:#1a1a2e; border-color:#1a1a2e; color:#fff; }
+    .cf-btn[data-label="Tinggi"].active        { background:#E53935; border-color:#E53935; color:#fff; }
+    .cf-btn[data-label="Sedang"].active        { background:#FB8C00; border-color:#FB8C00; color:#fff; }
+    .cf-btn[data-label="Rendah"].active        { background:#FDD835; border-color:#FDD835; color:#333; }
+    .cf-btn[data-label="Sangat Rendah"].active { background:#43A047; border-color:#43A047; color:#fff; }
 
-        .chart-section {
-            margin-bottom: 50px;
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
+    /* ── Popup ── */
+    .popup-kec .pk-name {
+        font-weight: 700; font-size: 15px; color: #1a1a2e;
+        border-bottom: 2px solid #bf3131;
+        padding-bottom: 6px; margin-bottom: 10px;
+    }
+    .popup-kec .pk-badge {
+        display: inline-block; padding: 2px 10px;
+        border-radius: 20px; font-size: 12px; font-weight: 600;
+        margin-bottom: 10px;
+    }
+    .popup-kec .pk-row {
+        display: flex; justify-content: space-between;
+        font-size: 13px; margin-bottom: 4px; color: #555;
+    }
+    .popup-kec .pk-row span:last-child { font-weight: 600; color: #1a1a2e; }
 
-        .chart-container {
-            width: 100%;
-            height: 400px;
-            padding: 20px;
-            background: #fafafa;
-            border-radius: 8px;
-            border: 1px solid #e0e0e0;
-        }
+    /* ── Loading overlay ── */
+    .map-loading {
+        position: absolute; inset: 0;
+        background: rgba(255,255,255,.85);
+        display: flex; align-items: center; justify-content: center;
+        z-index: 2000; border-radius: 10px;
+        flex-direction: column; gap: 12px;
+    }
+    .map-loading .spinner-border { width: 36px; height: 36px; }
+    .map-loading p { font-size: 13px; color: #777; }
 
-        .chart-container canvas {
-            max-height: 100%;
-        }
+    /* ── Chart ── */
+    .chart-wrap { width: 100%; height: 380px; position: relative; }
+</style>
 
-        /* Leaflet Popup Styling */
-        .leaflet-popup-content-wrapper {
-            border-radius: 8px;
-            padding: 5px;
-        }
+<div class="dash-wrap">
 
-        .leaflet-popup-content {
-            margin: 15px;
-            font-size: 14px;
-            line-height: 1.6;
-        }
+    {{-- Periode filter (atas) --}}
+    <div class="d-flex justify-content-end mb-3">
+        <form method="GET" action="{{ route('admin.dashboard') }}" class="periode-select">
+            <label for="periodeSelect">Periode :</label>
+            <select id="periodeSelect" name="periode_id" onchange="this.form.submit()">
+                @foreach ($periodes as $p)
+                    <option value="{{ $p->id }}" {{ $p->id == $periodeId ? 'selected' : '' }}>
+                        {{ $p->nama_periode }} — {{ $p->tahun }}
+                    </option>
+                @endforeach
+            </select>
+        </form>
+    </div>
 
-        .popup-title {
-            font-weight: 600;
-            font-size: 16px;
-            color: #1976D2;
-            margin-bottom: 10px;
-            border-bottom: 2px solid #2196F3;
-            padding-bottom: 5px;
-        }
-
-        .popup-info {
-            margin: 5px 0;
-        }
-
-        .popup-label {
-            font-weight: 600;
-            color: #555;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .dashboard-container {
-                padding: 10px;
-            }
-
-            .map-section,
-            .chart-section {
-                padding: 15px;
-            }
-
-            .header h1 {
-                font-size: 22px;
-            }
-
-            #map {
-                height: 400px;
-            }
-
-            .legend {
-                bottom: 30px;
-                right: 30px;
-                padding: 10px;
-                min-width: 150px;
-            }
-
-            .chart-container {
-                height: 300px;
-                padding: 10px;
-            }
-        }
-
-        /* Loading Spinner */
-        .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 500px;
-        }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #2196F3;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-    </style>
-    <div class="dashboard-container">
-
-        {{-- Tombol Tambah Hotspot dan Filter --}}
-        <div class="d-flex justify-content-start align-items-center mb-3 gap-3 flex-wrap">
-            {{-- Dropdown Filter --}}
-            <div class="filter-container" id="filterContainer">
-                <select id="filterJenis" class="form-select-custom">
-                    <option value="">Periode Kunjungan</option>
-                    <option value="WPS">WPS</option>
-                    <option value="LSL">LSL</option>
-                </select>
-            </div>
-
-        </div>
-
-        <!-- Peta Section -->
-        <div class="map-section">
-            <h2>Peta QTR Pasca-Peradilan (PP) Berdasarkan Kewenangan WPS & LSL</h2>
-            <div id="map"></div>
-            <div class="legend">
-                <div class="legend-title">Kategori</div>
-                <div class="legend-item">
-                    <span class="legend-color" style="background: #FF0000;"></span>
-                    <span>Tinggi (> 30)</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-color" style="background: #FFFF00;"></span>
-                    <span>Sedang (21-30)</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-color" style="background: #008000;"></span>
-                    <span>Sangat Rendah (≤ 10)</span>
-                </div>
+    {{-- Summary Cards --}}
+    <div class="summary-grid">
+        <div class="s-card">
+            <div class="s-icon">👥</div>
+            <div class="s-info">
+                <div class="s-val">{{ number_format($summary['total_wps']) }}</div>
+                <div class="s-lbl">Total WPS</div>
             </div>
         </div>
-
-        <!-- Diagram Total WPS & LSL -->
-        <div class="chart-section">
-            <h2>Diagram Pendataan Total WPS & LSL</h2>
-            <div class="chart-container">
-                <canvas id="chartTotal"></canvas>
+        <div class="s-card">
+            <div class="s-icon">📍</div>
+            <div class="s-info">
+                <div class="s-val">{{ number_format($summary['total_hotspot']) }}</div>
+                <div class="s-lbl">Total Hotspot Dikunjungi</div>
             </div>
         </div>
-
-        <!-- Diagram Total Realisasi WPS & LSL -->
-        <div class="chart-section">
-            <h2>Diagram Total Realisasi WPS & LSL</h2>
-            <div class="chart-container">
-                <canvas id="chartRealisasi"></canvas>
+        <div class="s-card">
+            <div class="s-icon">🧪</div>
+            <div class="s-info">
+                <div class="s-val">{{ number_format($summary['total_tes']) }}</div>
+                <div class="s-lbl">Sudah Dites HIV</div>
+            </div>
+        </div>
+        <div class="s-card">
+            <div class="s-icon">⚠️</div>
+            <div class="s-info">
+                <div class="s-val">{{ number_format($summary['total_positif']) }}</div>
+                <div class="s-lbl">HIV Positif</div>
             </div>
         </div>
     </div>
+
+    {{-- Peta Cluster --}}
+    <div class="panel">
+        <div class="panel-header">
+            <h2 class="panel-title">Peta Sebaran Klaster Risiko HIV per Kecamatan</h2>
+            <div class="cluster-filters">
+                <button class="cf-btn active" data-label="Semua">Semua</button>
+                <button class="cf-btn" data-label="Tinggi">Tinggi</button>
+                <button class="cf-btn" data-label="Sedang">Sedang</button>
+                <button class="cf-btn" data-label="Rendah">Rendah</button>
+                <button class="cf-btn" data-label="Sangat Rendah">Sangat Rendah</button>
+            </div>
+        </div>
+
+        <div style="position:relative;">
+            <div id="mapLoading" class="map-loading">
+                <div class="spinner-border text-danger" role="status"></div>
+                <p>Memuat peta kecamatan...</p>
+            </div>
+            <div id="map"></div>
+            <div class="map-legend">
+                <div class="leg-title">🎯 Klaster Risiko</div>
+                <div class="leg-item"><span class="leg-dot" style="background:#E53935;"></span>Tinggi</div>
+                <div class="leg-item"><span class="leg-dot" style="background:#FB8C00;"></span>Sedang</div>
+                <div class="leg-item"><span class="leg-dot" style="background:#FDD835;"></span>Rendah</div>
+                <div class="leg-item"><span class="leg-dot" style="background:#43A047;"></span>Sangat Rendah</div>
+                <div class="leg-item"><span class="leg-dot" style="background:#9E9E9E;"></span>Tidak Ada Data</div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Diagram Garis --}}
+    <div class="panel">
+        <div class="panel-header">
+            <h2 class="panel-title">Statistik WPS, Hotspot, Tes &amp; Positif per Kecamatan</h2>
+            <select id="chartFilter" class="form-select form-select-sm" style="width:auto;">
+                <option value="all">Semua Indikator</option>
+                <option value="wps_hotspot">WPS &amp; Hotspot</option>
+                <option value="tes_positif">Tes &amp; Positif</option>
+            </select>
+        </div>
+        <div class="chart-wrap">
+            <canvas id="lineChart"></canvas>
+        </div>
+    </div>
+
+</div>
 @endsection
 
-
+@push('scripts')
 <script>
-    // Data dummy untuk kecamatan
-    const dummyData = {
-        'Kencong': {
-            wps: 12,
-            lul: 8,
-            realisasi_wps: 10,
-            realisasi_lul: 6
-        },
-        'Gumukmas': {
-            wps: 18,
-            lul: 15,
-            realisasi_wps: 15,
-            realisasi_lul: 12
-        },
-        'Puger': {
-            wps: 7,
-            lul: 5,
-            realisasi_wps: 6,
-            realisasi_lul: 4
-        },
-        'Wuluhan': {
-            wps: 22,
-            lul: 19,
-            realisasi_wps: 18,
-            realisasi_lul: 16
-        },
-        'Ambulu': {
-            wps: 14,
-            lul: 11,
-            realisasi_wps: 12,
-            realisasi_lul: 9
-        },
-        'Tempurejo': {
-            wps: 9,
-            lul: 6,
-            realisasi_wps: 7,
-            realisasi_lul: 5
-        },
-        'Silo': {
-            wps: 16,
-            lul: 13,
-            realisasi_wps: 14,
-            realisasi_lul: 11
-        },
-        'Mayang': {
-            wps: 11,
-            lul: 8,
-            realisasi_wps: 9,
-            realisasi_lul: 7
-        },
-        'Mumbulsari': {
-            wps: 13,
-            lul: 10,
-            realisasi_wps: 11,
-            realisasi_lul: 8
-        },
-        'Jenggawah': {
-            wps: 19,
-            lul: 16,
-            realisasi_wps: 16,
-            realisasi_lul: 14
-        },
-        'Ajung': {
-            wps: 15,
-            lul: 12,
-            realisasi_wps: 13,
-            realisasi_lul: 10
-        },
-        'Rambipuji': {
-            wps: 10,
-            lul: 7,
-            realisasi_wps: 8,
-            realisasi_lul: 6
-        },
-        'Balung': {
-            wps: 20,
-            lul: 17,
-            realisasi_wps: 17,
-            realisasi_lul: 15
-        },
-        'Umbulsari': {
-            wps: 8,
-            lul: 6,
-            realisasi_wps: 7,
-            realisasi_lul: 5
-        },
-        'Semboro': {
-            wps: 17,
-            lul: 14,
-            realisasi_wps: 15,
-            realisasi_lul: 12
-        },
-        'Jombang': {
-            wps: 12,
-            lul: 9,
-            realisasi_wps: 10,
-            realisasi_lul: 8
-        },
-        'Sumberbaru': {
-            wps: 14,
-            lul: 11,
-            realisasi_wps: 12,
-            realisasi_lul: 9
-        },
-        'Tanggul': {
-            wps: 21,
-            lul: 18,
-            realisasi_wps: 18,
-            realisasi_lul: 16
-        },
-        'Bangsalsari': {
-            wps: 16,
-            lul: 13,
-            realisasi_wps: 14,
-            realisasi_lul: 11
-        },
-        'Panti': {
-            wps: 11,
-            lul: 8,
-            realisasi_wps: 9,
-            realisasi_lul: 7
-        },
-        'Sukorambi': {
-            wps: 13,
-            lul: 10,
-            realisasi_wps: 11,
-            realisasi_lul: 9
-        },
-        'Arjasa': {
-            wps: 9,
-            lul: 7,
-            realisasi_wps: 8,
-            realisasi_lul: 6
-        },
-        'Pakusari': {
-            wps: 15,
-            lul: 12,
-            realisasi_wps: 13,
-            realisasi_lul: 10
-        },
-        'Kalisat': {
-            wps: 18,
-            lul: 15,
-            realisasi_wps: 16,
-            realisasi_lul: 13
-        },
-        'Ledokombo': {
-            wps: 10,
-            lul: 8,
-            realisasi_wps: 9,
-            realisasi_lul: 7
-        },
-        'Sumberjambe': {
-            wps: 12,
-            lul: 9,
-            realisasi_wps: 10,
-            realisasi_lul: 8
-        },
-        'Sukowono': {
-            wps: 14,
-            lul: 11,
-            realisasi_wps: 12,
-            realisasi_lul: 10
-        },
-        'Jelbuk': {
-            wps: 8,
-            lul: 6,
-            realisasi_wps: 7,
-            realisasi_lul: 5
-        },
-        'Kaliwates': {
-            wps: 25,
-            lul: 22,
-            realisasi_wps: 22,
-            realisasi_lul: 19
-        },
-        'Sumbersari': {
-            wps: 23,
-            lul: 20,
-            realisasi_wps: 20,
-            realisasi_lul: 18
-        },
-        'Patrang': {
-            wps: 24,
-            lul: 21,
-            realisasi_wps: 21,
-            realisasi_lul: 18
-        }
+/* ── Data dari controller ── */
+const kecCluster = @json($kecClusterMap);
+const chartRaw   = @json($chartData);
+
+/* ── Lookup nama kecamatan → info cluster ── */
+function getInfo(nama) {
+    const key = Object.keys(kecCluster).find(
+        k => k.toLowerCase() === (nama || '').toLowerCase()
+    );
+    return key ? kecCluster[key] : {
+        label: 'Tidak Ada Data', color: '#9E9E9E',
+        total_wps: 0, total_hotspot: 0, total_tes: 0, total_positif: 0,
     };
+}
 
-    /* =======================
-       LEAFLET MAP
-    ======================= */
+/* ════════════════════════
+   LEAFLET MAP
+════════════════════════ */
+let map, geojsonLayer;
+let activeFilter = 'Semua';
 
-    let map;
-    let geojsonLayer;
+function darkenHex(hex, pct) {
+    const f = parseInt(hex.replace('#',''), 16);
+    const p = pct / 100;
+    const R = f >> 16, G = (f >> 8) & 0xff, B = f & 0xff;
+    return '#' + (0x1000000
+        + Math.round(R * (1 - p)) * 0x10000
+        + Math.round(G * (1 - p)) * 0x100
+        + Math.round(B * (1 - p))
+    ).toString(16).slice(1);
+}
 
-    // warna kategori
-    function getColor(wps, hotspot) {
-        if (wps >= 100 || hotspot >= 8) return "#FF0000";
-        if ((wps >= 50 && wps < 100) || (hotspot >= 4 && hotspot < 8)) return "#FFFF00";
-        return "#008000";
-    }
+function featureStyle(feature) {
+    const info    = getInfo(feature.properties.nama_kecamatan);
+    const visible = activeFilter === 'Semua' || info.label === activeFilter;
+    return {
+        fillColor  : info.color,
+        color      : darkenHex(info.color, 40),
+        weight     : 1.8,
+        fillOpacity: visible ? 0.72 : 0.10,
+        opacity    : visible ? 1    : 0.30,
+    };
+}
 
-    // gelapkan border
-    function shadeColor(color, percent) {
-        const f = parseInt(color.slice(1), 16),
-            t = percent < 0 ? 0 : 255,
-            p = Math.abs(percent) / 100,
-            R = f >> 16,
-            G = (f >> 8) & 255,
-            B = f & 255;
+function initMap() {
+    map = L.map('map').setView([-8.17, 113.7], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+    }).addTo(map);
 
-        return "#" + (
-            0x1000000 +
-            (Math.round((t - R) * p) + R) * 0x10000 +
-            (Math.round((t - G) * p) + G) * 0x100 +
-            (Math.round((t - B) * p) + B)
-        ).toString(16).slice(1);
-    }
+    fetch('{{ route('geojson.kecamatan') }}')
+        .then(r => r.json())
+        .then(data => {
+            geojsonLayer = L.geoJSON(data, {
+                style: featureStyle,
+                onEachFeature(feature, layer) {
+                    const nama = feature.properties.nama_kecamatan;
+                    const info = getInfo(nama);
+                    const badgeStyle = info.color === '#FDD835'
+                        ? `background:${info.color};color:#333`
+                        : `background:${info.color};color:#fff`;
 
-    function featureStyle(feature) {
-        const fill = getColor(
-            feature.properties.total_wps,
-            feature.properties.total_hotspot
-        );
+                    layer.bindPopup(`
+                        <div class="popup-kec">
+                            <div class="pk-name">${nama}</div>
+                            <span class="pk-badge" style="${badgeStyle}">${info.label}</span>
+                            <div class="pk-row"><span>Total WPS</span><span>${(info.total_wps||0).toLocaleString('id-ID')}</span></div>
+                            <div class="pk-row"><span>Hotspot Dikunjungi</span><span>${(info.total_hotspot||0).toLocaleString('id-ID')}</span></div>
+                            <div class="pk-row"><span>Sudah Dites HIV</span><span>${(info.total_tes||0).toLocaleString('id-ID')}</span></div>
+                            <div class="pk-row"><span>HIV Positif</span><span>${(info.total_positif||0).toLocaleString('id-ID')}</span></div>
+                        </div>`, { maxWidth: 260 });
 
-        return {
-            fillColor: fill,
-            color: shadeColor(fill, -40),
-            weight: 2,
-            fillOpacity: 0.5
-        };
-    }
-
-    function initMap() {
-
-        map = L.map("map").setView([-8.17, 113.7], 10);
-
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            attribution: '&copy; OSM'
-        }).addTo(map);
-
-        fetch("/geojson/kecamatan.geojson")
-            .then(res => res.json())
-            .then(data => {
-
-                geojsonLayer = L.geoJSON(data, {
-                    style: featureStyle,
-                    onEachFeature: function(feature, layer) {
-
-                        layer.bindPopup(`
-                        <b>${feature.properties.nama_kecamatan}</b><br>
-                        Total WPS : ${feature.properties.total_wps}<br>
-                        Total Hotspot : ${feature.properties.total_hotspot}
-                    `);
-
-                        layer.on({
-                            mouseover: e => e.target.setStyle({
-                                weight: 3
-                            }),
-                            mouseout: e => geojsonLayer.resetStyle(e.target),
-                            click: e => map.fitBounds(e.target.getBounds())
-                        });
-                    }
-                }).addTo(map);
-
-                map.fitBounds(geojsonLayer.getBounds());
-            })
-            .catch(err => {
-                console.error(err);
-                alert("GeoJSON tidak ditemukan di /public/geojson/kecamatan.geojson");
-            });
-    }
-
-    // Inisialisasi Chart Total WPS & LUL
-    function initChartTotal() {
-        const ctx = document.getElementById('chartTotal').getContext('2d');
-
-        // Ambil data dari dummyData
-        const labels = Object.keys(dummyData);
-        const wpsData = labels.map(kec => dummyData[kec].wps);
-        const lulData = labels.map(kec => dummyData[kec].lul);
-
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                        label: 'WPS',
-                        data: wpsData,
-                        backgroundColor: 'rgba(33, 150, 243, 0.7)',
-                        borderColor: 'rgba(33, 150, 243, 1)',
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'LUL',
-                        data: lulData,
-                        backgroundColor: 'rgba(255, 152, 0, 0.7)',
-                        borderColor: 'rgba(255, 152, 0, 1)',
-                        borderWidth: 1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: false
-                    },
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    }
+                    layer.on({
+                        mouseover(e) {
+                            e.target.setStyle({ weight: 3, fillOpacity: 0.9 });
+                            e.target.bringToFront();
+                        },
+                        mouseout(e) { geojsonLayer.resetStyle(e.target); },
+                        click(e)    { map.fitBounds(e.target.getBounds(), { padding: [40, 40] }); },
+                    });
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 5
-                        }
-                    },
-                    x: {
-                        ticks: {
-                            autoSkip: false,
-                            maxRotation: 90,
-                            minRotation: 45
-                        }
-                    }
-                }
-            }
+            }).addTo(map);
+
+            map.fitBounds(geojsonLayer.getBounds());
+            document.getElementById('mapLoading').style.display = 'none';
+        })
+        .catch(() => {
+            document.getElementById('mapLoading').innerHTML =
+                '<p style="color:#bf3131;font-size:14px;">⚠️ GeoJSON tidak ditemukan di /public/geojson/kecamatan.geojson</p>';
         });
-    }
+}
 
-    // Inisialisasi Chart Realisasi WPS & LUL
-    function initChartRealisasi() {
-        const ctx = document.getElementById('chartRealisasi').getContext('2d');
-
-        // Ambil data dari dummyData
-        const labels = Object.keys(dummyData);
-        const realisasiWpsData = labels.map(kec => dummyData[kec].realisasi_wps);
-        const realisasiLulData = labels.map(kec => dummyData[kec].realisasi_lul);
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                        label: 'Realisasi WPS',
-                        data: realisasiWpsData,
-                        borderColor: 'rgba(76, 175, 80, 1)',
-                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: true
-                    },
-                    {
-                        label: 'Realisasi LUL',
-                        data: realisasiLulData,
-                        borderColor: 'rgba(244, 67, 54, 1)',
-                        backgroundColor: 'rgba(244, 67, 54, 0.1)',
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: true
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: false
-                    },
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 5
-                        }
-                    },
-                    x: {
-                        ticks: {
-                            autoSkip: false,
-                            maxRotation: 90,
-                            minRotation: 45
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // Jalankan semua inisialisasi saat halaman dimuat
-    document.addEventListener('DOMContentLoaded', function() {
-        initMap();
-        initChartTotal();
-        initChartRealisasi();
+/* Filter tombol */
+document.querySelectorAll('.cf-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        document.querySelectorAll('.cf-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        activeFilter = this.dataset.label;
+        if (geojsonLayer) geojsonLayer.setStyle(featureStyle);
     });
+});
+
+/* ════════════════════════
+   LINE CHART
+════════════════════════ */
+const chartLabels = chartRaw.map(d => d.nama);
+const allSeries = [
+    {
+        id: 'wps',
+        label: 'Total WPS',
+        data: chartRaw.map(d => d.total_wps),
+        borderColor: '#1565C0',
+        backgroundColor: 'rgba(21,101,192,.07)',
+        borderWidth: 2.5, pointRadius: 4, pointHoverRadius: 7,
+        tension: 0.35, fill: false,
+    },
+    {
+        id: 'hotspot',
+        label: 'Hotspot Dikunjungi',
+        data: chartRaw.map(d => d.total_hotspot),
+        borderColor: '#6A1B9A',
+        backgroundColor: 'rgba(106,27,154,.07)',
+        borderWidth: 2.5, pointRadius: 4, pointHoverRadius: 7,
+        tension: 0.35, fill: false,
+    },
+    {
+        id: 'tes',
+        label: 'Sudah Dites HIV',
+        data: chartRaw.map(d => d.total_tes),
+        borderColor: '#2E7D32',
+        backgroundColor: 'rgba(46,125,50,.07)',
+        borderWidth: 2.5, pointRadius: 4, pointHoverRadius: 7,
+        tension: 0.35, fill: false,
+    },
+    {
+        id: 'positif',
+        label: 'HIV Positif',
+        data: chartRaw.map(d => d.total_positif),
+        borderColor: '#bf3131',
+        backgroundColor: 'rgba(191,49,49,.07)',
+        borderWidth: 2.5, pointRadius: 4, pointHoverRadius: 7,
+        tension: 0.35, fill: false,
+    },
+];
+
+let lineChart;
+
+function buildChart(filter) {
+    const ids = filter === 'wps_hotspot' ? ['wps','hotspot']
+              : filter === 'tes_positif' ? ['tes','positif']
+              : ['wps','hotspot','tes','positif'];
+
+    if (lineChart) lineChart.destroy();
+
+    lineChart = new Chart(
+        document.getElementById('lineChart').getContext('2d'), {
+        type: 'line',
+        data: { labels: chartLabels, datasets: allSeries.filter(s => ids.includes(s.id)) },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true, pointStyle: 'circle',
+                        padding: 20, font: { size: 12, weight: '600' },
+                    },
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(26,26,46,.92)',
+                    titleFont: { size: 13, weight: '700' },
+                    bodyFont: { size: 12 },
+                    padding: 12, cornerRadius: 8,
+                },
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(0,0,0,.04)' },
+                    ticks: { maxRotation: 55, minRotation: 45, font: { size: 11 }, color: '#555' },
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,.05)' },
+                    ticks: { font: { size: 11 }, color: '#555' },
+                },
+            },
+        },
+    });
+}
+
+document.getElementById('chartFilter').addEventListener('change', function () {
+    buildChart(this.value);
+});
+
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded', () => {
+    initMap();
+    buildChart('all');
+});
 </script>
-{{-- @push('scripts')
-    
-    <!-- Custom JS -->
-    <script src="{{ asset('../public/assets/js/dashboard-admin.js') }}"></script>
-@endpush --}}
+@endpush

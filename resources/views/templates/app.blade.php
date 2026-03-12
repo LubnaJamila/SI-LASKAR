@@ -69,26 +69,23 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <!-- 3. INISIALISASI SELECT2 -->
-    <script>
-        $(document).ready(function() {
-            // Initialize Select2 for single select
-            $('.select2-single').select2({
-                placeholder: 'Pilih Ketua Team',
-                allowClear: true
-            });
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-            // Initialize Select2 for multiple select
-            $('.select2-multiple').select2({
-                placeholder: 'Pilih Anggota Team',
-                allowClear: true
-            });
+
+    <!-- 3. INISIALISASI SELECT2 -->
+    {{-- <script>
+        $(document).ready(function() {
+
+            $('.select2-single').select2();
+            $('.select2-multiple').select2();
+
         });
-    </script>
+    </script> --}}
 
 
     <!-- Custom JS -->
     <script src="{{ asset('assets/js/app.js') }}"></script>
+    @stack('scripts')
 </body>
 
 </html>

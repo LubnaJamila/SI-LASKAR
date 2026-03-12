@@ -12,12 +12,9 @@
         <!-- USER DROPDOWN (TIDAK AKAN HILANG DI HP) -->
         <ul class="navbar-nav ms-auto">
             <li class="nav-item dropdown user-dropdown">
-                <a class="nav-link dropdown-toggle fw-semibold"
-                   style="color: var(--heading-color)"
-                   href="#"
-                   role="button"
-                   data-bs-toggle="dropdown">
-                    Selamat Datang Admin
+                <a class="nav-link dropdown-toggle fw-semibold" style="color: var(--heading-color)" href="#"
+                    role="button" data-bs-toggle="dropdown">
+                    Welcome {{ Auth::user()->nama_lengkap }}
                 </a>
 
                 <ul class="dropdown-menu dropdown-menu-end">
@@ -26,11 +23,17 @@
                             <i class="bi bi-person me-2"></i>Profil
                         </a>
                     </li>
-                    <li><hr class="dropdown-divider"></li>
                     <li>
-                        <a class="dropdown-item" href="#">
-                            <i class="bi bi-box-arrow-right me-2"></i>Logout
-                        </a>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li>
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="dropdown-item">
+                                <i class="bi bi-box-arrow-right me-2"></i> Logout
+                            </button>
+                        </form>
+
                     </li>
                 </ul>
             </li>
