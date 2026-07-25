@@ -56,10 +56,10 @@ class AuthController extends Controller
 
             // belum join team
             if (!$user->isPartOfAnyTeam()) {
-        dd([
-            'ketuaTeams' => $user->ketuaTeams()->get(),
-            'memberTeams' => $user->teams()->get(),
-        ]);
+        // dd([
+        //     'ketuaTeams' => $user->ketuaTeams()->get(),
+        //     'memberTeams' => $user->teams()->get(),
+        // ]);
         return redirect()->route('belum.team');
     }
 

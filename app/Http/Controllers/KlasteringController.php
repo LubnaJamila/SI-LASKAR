@@ -26,7 +26,7 @@ class KlasteringController extends Controller
     $periodeId = $request->query('periode_id');
     $periode   = $periodeId
         ? Periode::find($periodeId)
-        : Periode::where('status', 'open')->first();
+        : Periode::latest()->first();
 
     if (! $periode) {
         return view('admin.clustering.wps.wps', [

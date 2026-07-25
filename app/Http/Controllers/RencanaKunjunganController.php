@@ -10,56 +10,58 @@ use Illuminate\Support\Facades\Auth;
 
 class RencanaKunjunganController extends Controller
 {
-    public function index()
-    {
-        $user = Auth::user();
+    public function index(Request $request)
+{
+    $user = Auth::user();
 
-        // ======================
-        // PERIODE AKTIF
-        // ======================
-        $periode = Periode::where('status', 'open')->firstOrFail();
+    // ambil semua periode (untuk dropdown)
+    $periodes = Periode::orderBy('tahun', 'desc')->get();
 
+    // ======================
+    // PERIODE AKTIF (DEFAULT)
+    // ======================
+    $periodeAktif = Periode::where('status', 'open')->firstOrFail();
 
-        // ======================
-        // HOTSPOT (GLOBAL)
-        // ======================
-        $hotspots = Hotspot::where('status', 'aktif')
-            ->whereDoesntHave('rencana', function ($q) use ($periode) {
-                $q->where('periode_id', $periode->id);
-            })
-            ->get();
+    // kalau ada filter → pakai itu
+    $periodeId = $request->periode_id ?? $periodeAktif->id;
 
+    $periode = Periode::findOrFail($periodeId);
 
-        // ======================
-        // TEAM LOGIN
-        // ======================
-        $team = $user->teams()->first() ?? $user->ketuaTeams()->first();
+    // ======================
+    // HOTSPOT (GLOBAL)
+    // ======================
+    $hotspots = Hotspot::where('status', 'aktif')
+        ->whereDoesntHave('rencana', function ($q) use ($periode) {
+            $q->where('periode_id', $periode->id);
+        })
+        ->get();
 
+    // ======================
+    // TEAM LOGIN
+    // ======================
+    $team = $user->teams()->first() ?? $user->ketuaTeams()->first();
 
-        // ======================
-        // FILTER TABEL
-        // ======================
-        $query = RencanaKunjungan::with('hotspot', 'assignedBy')
-            ->where('periode_id', $periode->id);
+    // ======================
+    // FILTER TABEL
+    // ======================
+    $query = RencanaKunjungan::with('hotspot', 'assignedBy')
+        ->where('periode_id', $periode->id);
 
-        // 👑 KETUA → semua team
-        if ($user->ketuaTeams()->exists()) {
-            $query->where('team_id', $team->id);
-        }
-        // 👤 ANGGOTA → hanya yang dia buat
-        else {
-            $query->where('assigned_by', $user->id);
-        }
-
-        $rencana = $query->get();
-
-
-        return view('petugas.kunjungan.rencana-kunjungan', compact(
-            'periode',
-            'hotspots',
-            'rencana'
-        ));
+    if ($user->ketuaTeams()->exists()) {
+        $query->where('team_id', $team->id);
+    } else {
+        $query->where('assigned_by', $user->id);
     }
+
+    $rencana = $query->get();
+
+    return view('petugas.kunjungan.rencana-kunjungan', compact(
+        'periode',
+        'periodes',
+        'hotspots',
+        'rencana'
+    ));
+}
 
 
     // ======================
@@ -98,5 +100,42 @@ class RencanaKunjunganController extends Controller
         ]);
 
         return back()->with('success', 'Rencana berhasil ditambahkan');
+    }
+
+    // ======================
+    // EDIT
+    // ======================
+    public function edit($id)
+    {
+        $rencana = RencanaKunjungan::with('hotspot')->findOrFail($id);
+
+        $periode = Periode::where('status', 'open')->firstOrFail();
+
+        return response()->json([
+            'id' => $rencana->id,
+            'hotspot' => $rencana->hotspot->nama_hotspot,
+            'tanggal_rencana' => $rencana->tanggal_rencana,
+            'min_date' => $periode->tanggal_mulai,
+            'max_date' => $periode->tanggal_selesai,
+        ]);
+    }
+
+
+    // ======================
+    // UPDATE (RESCHEDULE)
+    // ======================
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'tanggal_rencana' => 'required|date'
+        ]);
+
+        $rencana = RencanaKunjungan::findOrFail($id);
+
+        $rencana->update([
+            'tanggal_rencana' => $request->tanggal_rencana
+        ]);
+
+        return back()->with('success', 'Rencana berhasil diupdate');
     }
 }

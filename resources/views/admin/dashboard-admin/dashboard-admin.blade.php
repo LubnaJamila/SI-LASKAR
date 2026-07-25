@@ -229,10 +229,10 @@
             <div id="map"></div>
             <div class="map-legend">
                 <div class="leg-title">🎯 Klaster Risiko</div>
-                <div class="leg-item"><span class="leg-dot" style="background:#E53935;"></span>Tinggi</div>
-                <div class="leg-item"><span class="leg-dot" style="background:#FB8C00;"></span>Sedang</div>
-                <div class="leg-item"><span class="leg-dot" style="background:#FDD835;"></span>Rendah</div>
-                <div class="leg-item"><span class="leg-dot" style="background:#43A047;"></span>Sangat Rendah</div>
+                <div class="leg-item"><span class="leg-dot" style="background:#ef4444;"></span>Tinggi</div>
+                <div class="leg-item"><span class="leg-dot" style="background:#f59e0b;"></span>Sedang</div>
+                <div class="leg-item"><span class="leg-dot" style="background:#22c55e;"></span>Rendah</div>
+                <div class="leg-item"><span class="leg-dot" style="background:#3b82f6;"></span>Sangat Rendah</div>
                 <div class="leg-item"><span class="leg-dot" style="background:#9E9E9E;"></span>Tidak Ada Data</div>
             </div>
         </div>

@@ -9,22 +9,27 @@ use Illuminate\Http\Request;
 class HasilKunjunganController extends Controller
 {
     public function index(Request $request)
-    {
-        $periodes = Periode::orderBy('tahun', 'desc')->get();
+{
+    $periodes = Periode::orderBy('tahun', 'desc')->get();
 
-        $query = Kunjungan::with([
-            'hotspot.kecamatan',
-            'team',
-            'periode',
-            'creator'
-        ]);
+    $query = Kunjungan::with([
+        'hotspot.kecamatan',
+        'team',
+        'periode',
+        'creator'
+    ]);
 
-        $kunjungans = $query->latest()->get();
-
-        return view('admin.hasil-kunjungan.hasil-kunjungan', [
-            'kunjungans' => $kunjungans,
-            'periodes' => $periodes,
-            'periodeId' => $request->periode_id
-        ]);
+    // FILTER BERDASARKAN PERIODE
+    if ($request->periode_id) {
+        $query->where('periode_id', $request->periode_id);
     }
+
+    $kunjungans = $query->latest()->get();
+
+    return view('admin.hasil-kunjungan.hasil-kunjungan', [
+        'kunjungans' => $kunjungans,
+        'periodes' => $periodes,
+        'periodeId' => $request->periode_id
+    ]);
+}
 }

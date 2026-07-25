@@ -15,11 +15,13 @@
                 <i class="bi bi-plus-circle"></i>
             </a>
 
-            <div class="filter-container" id="filterContainer">
-                <select id="filterJenis" class="form-select-custom">
-                    <option value="">Semua Periode</option>
-                    <option value="WPS">WPS</option>
-                    <option value="LSL">LSL</option>
+            <div class="filter-container">
+                <select id="filterPeriode" class="form-select-custom">
+                    @foreach ($periodes as $p)
+                        <option value="{{ $p->id }}" {{ $p->id == $periode->id ? 'selected' : '' }}>
+                            {{ $p->nama_periode }} — {{ $p->tahun }}
+                        </option>
+                    @endforeach
                 </select>
             </div>
 
@@ -64,7 +66,8 @@
                                     <td>
                                         @if ($item->status === 'direncanakan')
                                             {{-- Reschedule --}}
-                                            <a href="#" class="btn btn-sm btn-warning me-1" title="Reschedule">
+                                            <a href="#" class="btn btn-sm btn-warning me-1 btn-edit"
+                                                data-id="{{ $item->id }}" title="Reschedule">
                                                 <i class="bi bi-pencil-square"></i>
                                             </a>
 
@@ -169,4 +172,87 @@
         </div>
     </div>
 
+    <!-- Modal Edit Rencana -->
+    <div class="modal fade" id="modalEditRencana" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Reschedule Kunjungan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <form id="formEditRencana" method="POST">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="modal-body">
+
+                        <div class="mb-3">
+                            <label>Hotspot</label>
+                            <input type="text" id="editHotspot" class="form-control" disabled>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Tanggal Rencana</label>
+                            <input type="date" name="tanggal_rencana" id="editTanggal" class="form-control" required>
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const modal = new bootstrap.Modal(document.getElementById('modalEditRencana'));
+
+            document.querySelectorAll('.btn-edit').forEach(btn => {
+                btn.addEventListener('click', function() {
+
+                    let id = this.getAttribute('data-id');
+
+                    fetch(`/rencana_kunjungan/${id}/edit`)
+                        .then(res => res.json())
+                        .then(data => {
+
+                            // isi data
+                            document.getElementById('editHotspot').value = data.hotspot;
+                            document.getElementById('editTanggal').value = data.tanggal_rencana;
+
+                            // set min max tanggal
+                            document.getElementById('editTanggal').min = data.min_date;
+                            document.getElementById('editTanggal').max = data.max_date;
+
+                            // set action form
+                            document.getElementById('formEditRencana').action =
+                                `/rencana_kunjungan/${id}`;
+
+                            modal.show();
+                        });
+                });
+            });
+
+        });
+        document.getElementById('filterPeriode').addEventListener('change', function() {
+            let periodeId = this.value;
+            let url = new URL(window.location.href);
+
+            url.searchParams.set('periode_id', periodeId);
+
+            window.location.href = url.toString();
+        });
+    </script>
+@endpush

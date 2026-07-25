@@ -11,13 +11,19 @@
         <div class="d-flex justify-content-start align-items-center mb-3 gap-3 flex-wrap">
 
             {{-- Dropdown Filter --}}
-            <div class="filter-container" id="filterContainer">
+            <div class="filter-container">
                 <select id="filterJenis" class="form-select-custom">
+
+                    {{-- Option default --}}
+                    <option value="">Semua Periode</option>
+
+                    {{-- Loop periode --}}
                     @foreach ($periodes as $p)
-                    <option value="{{ $p->id }}" {{ $p->id == $periodeId ? 'selected' : '' }}>
-                        {{ $p->nama_periode }} — {{ $p->tahun }}
-                    </option>
-                @endforeach
+                        <option value="{{ $p->id }}" {{ $p->id == $periodeId ? 'selected' : '' }}>
+                            {{ $p->nama_periode }} — {{ $p->tahun }}
+                        </option>
+                    @endforeach
+
                 </select>
             </div>
 
@@ -83,3 +89,14 @@
     </div>
 
 @endsection
+
+@push('scripts')
+    <script>
+        document.getElementById('filterJenis').addEventListener('change', function() {
+            let periodeId = this.value;
+            let url = new URL(window.location.href);
+            url.searchParams.set('periode_id', periodeId);
+            window.location.href = url.toString();
+        });
+    </script>
+@endpush

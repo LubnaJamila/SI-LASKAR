@@ -225,7 +225,7 @@
         @if (!$periode)
             <div class="alert-belum">
                 <i class="bi bi-exclamation-circle-fill"></i>
-                <span>Tidak ada periode aktif (<em>status: open</em>). Buka periode terlebih dahulu.</span>
+                <span>Tidak ada periode tersedia. Tambahkan periode terlebih dahulu.</span>
             </div>
         @else
             {{-- ── Flash messages ── --}}

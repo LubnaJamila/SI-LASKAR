@@ -40,6 +40,9 @@ Route::middleware(['auth','admin'])->group(function () {
     Route::get('/dashboard', [DashboardAdminController::class,'index'])->name('admin.dashboard');
 
     Route::get('/hotspot', [HotspotController::class,'index'])->name('hotspot');
+    Route::put('/hotspot/{hotspot}',                               [HotspotController::class, 'update'])->name('update');
+    Route::post('/hotspot/delete-request/{deleteRequest}/approve', [HotspotController::class, 'approveDelete'])->name('approveDelete');
+    Route::post('/hotspot/delete-request/{deleteRequest}/reject',  [HotspotController::class, 'rejectDelete'])->name('rejectDelete');
     
     Route::get('/petugas', [PetugasController::class,'index'])->name('petugas');
     Route::post('/petugas/store', [PetugasController::class, 'store'])->name('petugas.store');
@@ -59,6 +62,8 @@ Route::middleware(['auth','admin'])->group(function () {
     Route::put('/periode_kunjungan/{id}/close',[PeriodeController::class,'close'])->name('periode.close');
 
     Route::get('/rencana_tim', [RencanaTimController::class,'index'])->name('rencana_tim');
+    Route::get('/rencana_tim/{id}/edit', [RencanaTimController::class, 'edit'])->name('rencana_tim.edit');
+    Route::put('/rencana_tim/{id}', [RencanaTimController::class, 'update'])->name('rencana_tim.update');
 
     Route::get('/wps', [KlasteringController::class,'index'])->name('wps');
     Route::post('/wps/run', [KlasteringController::class, 'run'])->name('klastering.run');
@@ -82,8 +87,12 @@ Route::middleware(['auth','petugas','petugas.team'])->group(function () {
     Route::get('/petugas/dashboard', [DashboardPetugasController::class,'index'])->name('petugas.dashboard');
     Route::get('/petugas/hotspot', [HotspotPetugasController::class,'index'])->name('petugas.hotspot');
     Route::post('/hotspot/store', [HotspotPetugasController::class, 'store'])->name('hotspot.store');
+    Route::put('/hotspot/{hotspot}', [HotspotPetugasController::class, 'update'])->name('update');
+    Route::post('/hotspot/{hotspot}/request-delete', [HotspotPetugasController::class, 'requestDelete'])->name('requestDelete');
     Route::get('/rencana_kunjungan',[RencanaKunjunganController::class,'index'])->name('rencana_kunjungan');
     Route::post('/rencana_kunjungan/store',[RencanaKunjunganController::class,'store'])->name('rencana.store');
+    Route::get('/rencana_kunjungan/{id}/edit', [RencanaKunjunganController::class, 'edit'])->name('rencana.edit');
+    Route::put('/rencana_kunjungan/{id}', [RencanaKunjunganController::class, 'update'])->name('rencana.update');
     Route::get('/rencana_kunjungan/realisasi_kunjungan',[DashboardPetugasController::class,'realisasi_kunjungan'])->name('realisasi_kunjungan');
     Route::get( '/rencana_kunjungan/{rencana}/realisasi', [KunjunganController::class, 'create'])->name('realisasi_kunjungan.create');
     Route::post('/rencana_kunjungan/{rencana}/realisasi', [KunjunganController::class, 'store'])->name('realisasi_kunjungan.store');

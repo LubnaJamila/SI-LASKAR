@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\KlasteringAgregatWPS;
 use App\Models\Kunjungan;
+use App\Models\Periode;
 use App\Models\RencanaKunjungan;
 use App\Models\Team;
 use Illuminate\Http\Request;
@@ -14,9 +15,13 @@ use Illuminate\Support\Str;
 class KunjunganController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
+
+        // ambil semua periode untuk dropdown
+    $periodes = Periode::orderBy('tahun', 'desc')->get();
+
 
         // cek apakah user ketua team
         $teamKetua = Team::where('ketua_id', $user->id)->first();
@@ -40,11 +45,16 @@ class KunjunganController extends Controller
             $query->where('created_by', $user->id);
         }
 
+         // 🔥 FILTER PERIODE
+    if ($request->periode_id) {
+        $query->where('periode_id', $request->periode_id);
+    }
+
         $kunjungans = $query
             ->latest()
             ->get();
 
-        return view('petugas.kunjungan.kunjungan-saya', compact('kunjungans'));
+        return view('petugas.kunjungan.kunjungan-saya', compact('kunjungans', 'periodes'));
     }
     /**
      * Tampilkan form realisasi kunjungan.

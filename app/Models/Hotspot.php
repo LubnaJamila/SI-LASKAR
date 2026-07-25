@@ -56,4 +56,8 @@ class Hotspot extends Model
         // =========================
         return $query->where('created_by', $user->id);
     }
+
+    public function deleteRequests() {
+        return $this->hasMany(HotspotDeleteRequest::class);
+    }
 }

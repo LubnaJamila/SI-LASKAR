@@ -9,11 +9,15 @@
         <div class="d-flex justify-content-start align-items-center mb-3 gap-3 flex-wrap">
 
             {{-- Dropdown Filter --}}
-            <div class="filter-container" id="filterContainer">
-                <select id="filterJenis" class="form-select-custom">
-                    <option value="">Periode Kunjungan</option>
-                    <option value="WPS">WPS</option>
-                    <option value="LSL">LSL</option>
+            <div class="filter-container">
+                <select id="filterPeriode" class="form-select-custom">
+                    <option value="">Semua Periode</option>
+
+                    @foreach ($periodes as $p)
+                        <option value="{{ $p->id }}" {{ request('periode_id') == $p->id ? 'selected' : '' }}>
+                            {{ $p->nama_periode }} — {{ $p->tahun }}
+                        </option>
+                    @endforeach
                 </select>
             </div>
 
@@ -71,3 +75,19 @@
     </div>
 
 @endsection
+@push('scripts')
+    <script>
+        document.getElementById('filterPeriode').addEventListener('change', function() {
+            let periodeId = this.value;
+            let url = new URL(window.location.href);
+
+            if (periodeId) {
+                url.searchParams.set('periode_id', periodeId);
+            } else {
+                url.searchParams.delete('periode_id');
+            }
+
+            window.location.href = url.toString();
+        });
+    </script>
+@endpush
